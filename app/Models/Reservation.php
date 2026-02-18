@@ -48,4 +48,10 @@ class Reservation extends Model
     {
         return $query->where('status', self::STATUS_ACTIVE);
     }
+
+    public function scopeExpired($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE)
+            ->where('expires_at', '<', now());
+    }
 }
