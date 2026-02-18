@@ -12,6 +12,14 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    public const string ROLE_READER = 'reader';
+    public const string ROLE_LIBRARIAN = 'librarian';
+
+    public const array ROLES = [
+        self::ROLE_READER,
+        self::ROLE_LIBRARIAN,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -49,11 +57,11 @@ class User extends Authenticatable
 
     public function isLibrarian(): bool
     {
-        return $this->role === 'librarian';
+        return $this->role === self::ROLE_LIBRARIAN;
     }
 
     public function isReader(): bool
     {
-        return $this->role === 'reader';
+        return $this->role === self::ROLE_READER;
     }
 }
