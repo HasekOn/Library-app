@@ -6,6 +6,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $book_id
+ * @property string $status
+ * @property \Carbon\Carbon $borrowed_at
+ * @property \Carbon\Carbon $due_at
+ * @property \Carbon\Carbon|null $returned_at
+ * @property int $fine_amount
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Book $book
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder active()
+ * @method static \Illuminate\Database\Eloquent\Builder withUnpaidFines()
+ */
 class Loan extends Model
 {
     use HasFactory;

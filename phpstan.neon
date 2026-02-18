@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+
+    level: 5
+
+    ignoreErrors:
+        - '#Access to an undefined property App\\Http\\Resources\\.*#'
+        - '#Call to an undefined method App\\Http\\Resources\\.*#'
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany::(active|withUnpaidFines)\(\)#'
+
+    excludePaths:

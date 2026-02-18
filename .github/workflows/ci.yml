@@ -36,6 +36,9 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --force
 
+      - name: Run static analysis (Larastan)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=512M
+
       - name: Run tests with coverage
         run: php artisan test --coverage-clover=coverage.xml
 
@@ -49,4 +52,4 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
-          retention-days: 30
+          retention-days: 3

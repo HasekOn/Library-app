@@ -66,7 +66,9 @@ class LoanService
         $loan->book->increment('available_copies');
 
         if ($fineAmount > 0) {
-            $loan->user->notify(new LateReturnNotification($fineAmount));
+            /** @var \App\Models\User $user */
+            $user = $loan->user;
+            $user->notify(new LateReturnNotification($fineAmount));
         }
 
         return $loan;
@@ -74,6 +76,7 @@ class LoanService
 
     private function calculateFine(Loan $loan): int
     {
+        /** @var \Carbon\Carbon $dueDate */
         $dueDate = $loan->due_at;
         $now = now();
 

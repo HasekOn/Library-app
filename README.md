@@ -130,6 +130,16 @@ app/
 - **$this->actingAs($user)** – stub autentizace. Důvod: simulujeme přihlášeného uživatele bez reálného auth flow.
 - **User::factory() / Book::factory()** – factory pattern pro generování testovacích dat s kontrolovanými atributy.
 
+## Bonusová rozšíření
+
+### Statická analýza (Larastan)
+
+Projekt používá Larastan (PHPStan pro Laravel) na úrovni 5 jako quality gate v CI pipeline. Analýza běží automaticky při každém push a pipeline selže, pokud kód obsahuje chyby.
+```bash
+# Lokální spuštění
+vendor/bin/phpstan analyse --memory-limit=512M
+```
+
 ### Co se nemockuje a proč
 
 Databáze se nemockuje – používáme in-memory SQLite (`DB_DATABASE=:memory:` v `phpunit.xml`), protože chceme ověřit reálnou interakci s databází (ORM, migrace, constraints). Testy jsou díky in-memory DB stále rychlé.
