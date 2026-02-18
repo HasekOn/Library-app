@@ -83,10 +83,7 @@ class LoanService
 
     private function hasUnpaidFines(User $user): bool
     {
-        return $user->loans()
-            ->where('status', Loan::STATUS_RETURNED)
-            ->where('fine_amount', '>', 0)
-            ->exists();
+        return $user->loans()->withUnpaidFines()->exists();
     }
 
     private function isReservedByAnotherUser(Book $book, User $user): bool

@@ -57,4 +57,10 @@ class Loan extends Model
     {
         return $query->where('status', self::STATUS_BORROWED);
     }
+
+    public function scopeWithUnpaidFines($query)
+    {
+        return $query->where('status', self::STATUS_RETURNED)
+            ->where('fine_amount', '>', 0);
+    }
 }
