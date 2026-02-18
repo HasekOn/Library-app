@@ -19,9 +19,7 @@ class LoanService
             throw new BookNotAvailableException();
         }
 
-        $activeLoans = Loan::where('user_id', $user->id)
-            ->where('status', Loan::STATUS_BORROWED)
-            ->count();
+        $activeLoans = $user->loans()->active()->count();
 
         if ($activeLoans >= self::MAX_ACTIVE_LOANS) {
             throw new MaxLoansExceededException();

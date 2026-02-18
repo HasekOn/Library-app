@@ -50,4 +50,9 @@ class Loan extends Model
     {
         return $this->status === self::STATUS_RETURNED;
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_BORROWED);
+    }
 }
