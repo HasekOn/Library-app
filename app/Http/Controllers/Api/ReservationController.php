@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ReservationResource;
 use App\Models\Book;
 use App\Models\Reservation;
 use App\Services\ReservationService;
@@ -24,7 +25,7 @@ class ReservationController extends Controller
             ->with('book')
             ->get();
 
-        return response()->json(['data' => $reservations]);
+        return response()->json(['data' => ReservationResource::collection($reservations)]);
     }
 
     public function store(Request $request): JsonResponse
@@ -41,7 +42,7 @@ class ReservationController extends Controller
             return response()->json(['message' => $e->getMessage()], 409);
         }
 
-        return response()->json(['data' => $reservation], 201);
+        return response()->json(['data' => new ReservationResource($reservation)], 201);
     }
 
     public function cancel(Request $request, int $id): JsonResponse
@@ -54,6 +55,6 @@ class ReservationController extends Controller
             return response()->json(['message' => $e->getMessage()], 409);
         }
 
-        return response()->json(['data' => $cancelledReservation]);
+        return response()->json(['data' => new ReservationResource($cancelledReservation)]);
     }
 }

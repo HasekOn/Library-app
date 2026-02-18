@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\LoanResource;
 use App\Models\Book;
 use App\Models\Loan;
 use App\Services\LoanService;
@@ -27,7 +28,7 @@ class LoanController extends Controller
             ->with('book')
             ->get();
 
-        return response()->json(['data' => $loans]);
+        return response()->json(['data' => LoanResource::collection($loans)]);
     }
 
     public function store(Request $request): JsonResponse
@@ -44,7 +45,7 @@ class LoanController extends Controller
             return response()->json(['message' => $e->getMessage()], 409);
         }
 
-        return response()->json(['data' => $loan], 201);
+        return response()->json(['data' => new LoanResource($loan)], 201);
     }
 
     public function return(Request $request, int $id): JsonResponse
@@ -57,6 +58,6 @@ class LoanController extends Controller
             return response()->json(['message' => $e->getMessage()], 409);
         }
 
-        return response()->json(['data' => $returnedLoan]);
+        return response()->json(['data' => new LoanResource($returnedLoan)]);
     }
 }
