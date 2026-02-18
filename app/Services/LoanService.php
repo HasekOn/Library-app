@@ -11,6 +11,7 @@ use App\Models\Book;
 use App\Models\Loan;
 use App\Models\Reservation;
 use App\Models\User;
+use App\Notifications\LateReturnNotification;
 
 class LoanService
 {
@@ -63,6 +64,10 @@ class LoanService
         ]);
 
         $loan->book->increment('available_copies');
+
+        if ($fineAmount > 0) {
+            $loan->user->notify(new LateReturnNotification($fineAmount));
+        }
 
         return $loan;
     }
