@@ -1,59 +1,154 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Library App – Půjčovna knih (REST API)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Semestrální práce do 'Programování řízené testy' – REST API pro správu půjčovny knih vyvinuté v Laravel s využitím TDD, Git a CI/CD.
 
-## About Laravel
+## Popis domény
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Aplikace simuluje knihovní systém, kde uživatelé (čtenáři) si mohou půjčovat a rezervovat knihy, a knihovníci spravují katalog. Systém vynucuje business pravidla jako limity výpůjček, pokuty za pozdní vrácení a prioritu rezervací.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Entity
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **User** – uživatel s rolí `reader` (čtenář) nebo `librarian` (knihovník)
+- **Book** – kniha s evidencí celkového a dostupného počtu výtisků
+- **Loan** – výpůjčka se stavy `borrowed` → `returned`
+- **Reservation** – rezervace se stavy `active` → `fulfilled` / `expired` / `cancelled`
 
-## Learning Laravel
+### Business pravidla
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1. Uživatel může mít maximálně 3 aktivní výpůjčky současně
+2. Knihu nelze půjčit, pokud žádný výtisk není dostupný
+3. Uživatel s nezaplacenou pokutou si nemůže půjčit další knihu
+4. Při pozdním vrácení se automaticky vypočítá pokuta (10 Kč/den prodlení, lhůta 14 dní)
+5. Rezervace expiruje po 3 dnech
+6. Knihu nelze půjčit jinému uživateli, pokud na ni existuje aktivní rezervace
+7. Validace stavových přechodů – výpůjčku nelze vrátit dvakrát, zrušenou rezervaci nelze znovu aktivovat
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Jak spustit projekt lokálně
 
-## Laravel Sponsors
+### Požadavky
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- PHP 8.4+
+- Composer
+- Git
+- SQLite (extension `pdo_sqlite`)
 
-### Premium Partners
+### Instalace
+```bash
+git clone https://github.com/HasekOn/Library-app.git
+cd Library-app
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Spuštění serveru
+```bash
+php artisan serve
+# API dostupné na http://localhost:8000/api
+```
 
-## Contributing
+### Spuštění testů
+```bash
+# Všechny testy
+php artisan test
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# S code coverage (vyžaduje Xdebug nebo PCOV)
+php artisan test --coverage
 
-## Code of Conduct
+# Konkrétní test suite
+php artisan test --filter=BookTest
+php artisan test --filter=LoanTest
+php artisan test --filter=ReservationTest
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## API Endpointy
 
-## Security Vulnerabilities
+### Books (veřejné čtení, zápis jen librarian)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Metoda | Endpoint          | Popis             | Auth      |
+|--------|-------------------|-------------------|-----------|
+| GET    | `/api/books`      | Seznam všech knih | Ne        |
+| GET    | `/api/books/{id}` | Detail knihy      | Ne        |
+| POST   | `/api/books`      | Vytvořit knihu    | Librarian |
+| PUT    | `/api/books/{id}` | Upravit knihu     | Librarian |
+| DELETE | `/api/books/{id}` | Smazat knihu      | Librarian |
 
-## License
+### Loans (vyžaduje přihlášení)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Metoda | Endpoint                 | Popis                    |
+|--------|--------------------------|--------------------------|
+| GET    | `/api/loans`             | Moje výpůjčky            |
+| POST   | `/api/loans`             | Půjčit knihu (`book_id`) |
+| PATCH  | `/api/loans/{id}/return` | Vrátit knihu             |
+
+### Reservations (vyžaduje přihlášení)
+
+| Metoda | Endpoint                        | Popis                        |
+|--------|---------------------------------|------------------------------|
+| GET    | `/api/reservations`             | Moje rezervace               |
+| POST   | `/api/reservations`             | Rezervovat knihu (`book_id`) |
+| PATCH  | `/api/reservations/{id}/cancel` | Zrušit rezervaci             |
+
+## Architektura
+```
+app/
+├── Models/              # Eloquent modely (Book, User, Loan, Reservation)
+├── Services/            # Business logika (LoanService, ReservationService)
+├── Http/
+│   ├── Controllers/Api/ # REST API controllery
+│   ├── Requests/        # Form Request validace
+│   └── Resources/       # API Resource transformace
+├── Exceptions/          # Custom výjimky (BusinessRule violations)
+└── Notifications/       # Email notifikace (LateReturnNotification)
+```
+
+### Vrstvy
+
+- **Controller** – přijímá HTTP request, volá service, vrací JSON response
+- **Service** – obsahuje business logiku a pravidla, vyhazuje custom výjimky
+- **Model** – Eloquent ORM, vztahy, scopes, jednoduché helper metody
+- **Request** – validace vstupů a autorizace (role-based)
+- **Resource** – transformace modelu na konzistentní JSON odpověď
+- **Exception** – custom výjimky pro business pravidla (409 Conflict)
+
+## Testovací strategie
+
+### Typy testů
+
+**Feature (integrační) testy** – ověřují celý flow od HTTP requestu přes controller, service až po databázi. Používají `RefreshDatabase` trait pro čistý stav databáze v každém testu. Příklady: `BookApiTest`, `LoanApiTest`, `ReservationApiTest`.
+
+**Doménové testy** – testují business pravidla přes service vrstvu s reálnou databází. Příklady: `LoanTest`, `LoanFineTest`, `ReservationTest`.
+
+**Model testy** – ověřují správné chování modelů, factory a helper metod. Příklady: `BookTest`, `UserTest`.
+
+### Mocking a test doubles
+
+- **Notification::fake()** – fake (typ test double) pro emailové notifikace. Důvod: nechceme v testech reálně odesílat emaily, ale chceme ověřit, že se notifikace odešle správnému uživateli se správnými daty.
+- **$this->freezeTime() / $this->travel()** – mock systémového času. Důvod: testování pokut a expirace rezervací vyžaduje kontrolu nad časem.
+- **$this->actingAs($user)** – stub autentizace. Důvod: simulujeme přihlášeného uživatele bez reálného auth flow.
+- **User::factory() / Book::factory()** – factory pattern pro generování testovacích dat s kontrolovanými atributy.
+
+### Co se nemockuje a proč
+
+Databáze se nemockuje – používáme in-memory SQLite (`DB_DATABASE=:memory:` v `phpunit.xml`), protože chceme ověřit reálnou interakci s databází (ORM, migrace, constraints). Testy jsou díky in-memory DB stále rychlé.
+
+## CI/CD
+
+GitHub Actions pipeline (`.github/workflows/ci.yml`) automaticky při každém push/PR:
+
+1. Nastaví PHP 8.4 + extensions
+2. Nainstaluje závislosti (Composer)
+3. Připraví prostředí (.env, SQLite, migrace)
+4. Spustí všechny testy
+5. Vygeneruje code coverage report (artefakt)
+
+### Code Coverage
+
+Cíl: **≥ 70 % line coverage**.
+
+Co se netestuje a proč:
+- Framework boilerplate (middleware, providers) – testuje Laravel sám
+- Jednoduchý CRUD bez business logiky – pokrytý integračními testy
+
