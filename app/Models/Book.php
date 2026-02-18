@@ -17,6 +17,14 @@ class Book extends Model
         'available_copies',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'total_copies' => 'integer',
+            'available_copies' => 'integer',
+        ];
+    }
+
     public function isAvailable(): bool
     {
         return $this->available_copies > 0;
