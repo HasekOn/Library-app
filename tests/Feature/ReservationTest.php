@@ -47,14 +47,17 @@ class ReservationTest extends TestCase
 
     public function test_reservation_expires_after_three_days(): void
     {
+        $this->freezeTime();
+
         $user = User::factory()->create();
         $book = Book::factory()->create(['available_copies' => 0]);
 
         $reservation = $this->reservationService->reserveBook($user, $book);
 
-        $this->assertTrue(
-            $reservation->expires_at->equalTo(now()->addDays(3))
-        );
+        $expected = now()->addDays(3)->toDateTimeString();
+        $actual = $reservation->expires_at->toDateTimeString();
+
+        $this->assertEquals($expected, $actual);
     }
 
     public function test_user_can_cancel_active_reservation(): void
