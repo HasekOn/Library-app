@@ -20,6 +20,7 @@ class Loan extends Model
         'borrowed_at',
         'due_at',
         'returned_at',
+        'fine_amount',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class Loan extends Model
             'borrowed_at' => 'datetime',
             'due_at' => 'datetime',
             'returned_at' => 'datetime',
+            'fine_amount' => 'integer',
         ];
     }
 

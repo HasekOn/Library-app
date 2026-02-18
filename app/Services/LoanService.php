@@ -3,15 +3,19 @@
 namespace App\Services;
 
 use App\Exceptions\BookNotAvailableException;
+use App\Exceptions\BookReservedException;
 use App\Exceptions\InvalidLoanStateException;
 use App\Exceptions\MaxLoansExceededException;
+use App\Exceptions\UnpaidFineException;
 use App\Models\Book;
 use App\Models\Loan;
+use App\Models\Reservation;
 use App\Models\User;
 
 class LoanService
 {
     private const int MAX_ACTIVE_LOANS = 3;
+    private const int FINE_PER_DAY = 10;
 
     public function borrowBook(User $user, Book $book): Loan
     {
@@ -19,10 +23,18 @@ class LoanService
             throw new BookNotAvailableException();
         }
 
+        if ($this->hasUnpaidFines($user)) {
+            throw new UnpaidFineException();
+        }
+
         $activeLoans = $user->loans()->active()->count();
 
         if ($activeLoans >= self::MAX_ACTIVE_LOANS) {
             throw new MaxLoansExceededException();
+        }
+
+        if ($this->isReservedByAnotherUser($book, $user)) {
+            throw new BookReservedException();
         }
 
         $book->decrement('available_copies');
@@ -42,13 +54,46 @@ class LoanService
             throw new InvalidLoanStateException('Cannot return a loan that is not in borrowed state.');
         }
 
+        $fineAmount = $this->calculateFine($loan);
+
         $loan->update([
             'status' => Loan::STATUS_RETURNED,
             'returned_at' => now(),
+            'fine_amount' => $fineAmount,
         ]);
 
         $loan->book->increment('available_copies');
 
         return $loan;
+    }
+
+    private function calculateFine(Loan $loan): int
+    {
+        $dueDate = $loan->due_at;
+        $now = now();
+
+        if ($now->lte($dueDate)) {
+            return 0;
+        }
+
+        $daysLate = (int) $dueDate->diffInDays($now);
+
+        return $daysLate * self::FINE_PER_DAY;
+    }
+
+    private function hasUnpaidFines(User $user): bool
+    {
+        return $user->loans()
+            ->where('status', Loan::STATUS_RETURNED)
+            ->where('fine_amount', '>', 0)
+            ->exists();
+    }
+
+    private function isReservedByAnotherUser(Book $book, User $user): bool
+    {
+        return Reservation::where('book_id', $book->id)
+            ->where('user_id', '!=', $user->id)
+            ->active()
+            ->exists();
     }
 }
