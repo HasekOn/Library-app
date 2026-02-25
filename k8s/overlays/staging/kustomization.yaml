@@ -1,5 +1,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Customization
+kind: Kustomization
 
 namespace: library-staging
 
@@ -43,3 +43,17 @@ patches:
       - op: replace
         path: /spec/rules/0/host
         value: "staging.library.local"
+
+  - target:
+      kind: ConfigMap
+      name: library-config
+    patch: |
+      - op: replace
+        path: /data/APP_ENV
+        value: "staging"
+      - op: replace
+        path: /data/APP_DEBUG
+        value: "true"
+      - op: replace
+        path: /data/DB_HOST
+        value: "staging-mysql"
