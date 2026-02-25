@@ -436,6 +436,30 @@ vendor/bin/phpstan analyse --memory-limit=512M
 
 Při pozdním vrácení knihy systém automaticky odešle `LateReturnNotification` s informací o pokutě. Testováno pomocí `Notification::fake()`.
 
+### Smoke test po deploy
+
+Skript `scripts/smoke-test.sh` ověřuje funkčnost aplikace po nasazení do Kubernetes:
+- GET `/api/books` vrací HTTP 200
+- Response obsahuje validní JSON s klíčem `data`
+- POST bez autentizace je odmítnut
+```bash
+bash scripts/smoke-test.sh library-staging staging-library-app 8080
+```
+
+### Infrastructure as Code (Terraform)
+
+Terraform spravuje Kubernetes namespaces a resource quotas pro obě prostředí.
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+Spravované zdroje:
+- Namespaces (`library-staging`, `library-production`) s labely
+- Resource quotas (limity CPU, paměti a počtu podů na namespace)
+
 ---
 
 ## Technologie
