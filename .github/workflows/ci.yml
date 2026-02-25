@@ -47,9 +47,47 @@ jobs:
           php artisan test --coverage --min=70
         continue-on-error: true
 
-      - name: Upload coverage report
+      - name: Upload test results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: coverage-report
-          path: coverage.xml
-          retention-days: 3
+          name: test-and-coverage-report
+          path: |
+            coverage.xml
+          retention-days: 30
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
