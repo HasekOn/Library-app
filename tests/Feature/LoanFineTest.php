@@ -33,12 +33,11 @@ class LoanFineTest extends TestCase
 
         $loan = $this->loanService->borrowBook($user, $book);
 
-        // Posuneme čas o 17 dní (14 dní lhůta + 3 dny prodlení)
         $this->travel(17)->days();
 
         $returnedLoan = $this->loanService->returnBook($loan->fresh());
 
-        $this->assertEquals(30, $returnedLoan->fine_amount); // 3 dny * 10 Kč
+        $this->assertEquals(30, $returnedLoan->fine_amount);
     }
 
     public function test_on_time_return_has_no_fine(): void

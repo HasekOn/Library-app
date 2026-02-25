@@ -17,7 +17,7 @@ class BookTest extends TestCase
             'author' => 'Robert C. Martin',
             'isbn' => '978-0132350884',
             'total_copies' => 3,
-            'available_copies' => 3,
+            'available_copies' => 4,
         ]);
 
         $this->assertDatabaseHas('books', [
@@ -25,7 +25,7 @@ class BookTest extends TestCase
             'isbn' => '978-0132350884',
         ]);
         $this->assertEquals(3, $book->total_copies);
-        $this->assertEquals(3, $book->available_copies);
+        $this->assertEquals(4, $book->available_copies);
     }
 
     public function test_book_is_available_when_copies_exist(): void
