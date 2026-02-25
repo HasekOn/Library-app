@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('loans', [LoanController::class, 'index']);
     Route::post('loans', [LoanController::class, 'store']);
     Route::patch('loans/{loan}/return', [LoanController::class, 'return']);
+    Route::patch('loans/{loan}/pay-fine', [LoanController::class, 'payFine']);
 
     // Reservations
     Route::get('reservations', [ReservationController::class, 'index']);

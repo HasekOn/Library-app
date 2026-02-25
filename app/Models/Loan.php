@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,15 +13,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $user_id
  * @property int $book_id
  * @property string $status
- * @property \Carbon\Carbon $borrowed_at
- * @property \Carbon\Carbon $due_at
- * @property \Carbon\Carbon|null $returned_at
+ * @property Carbon $borrowed_at
+ * @property Carbon $due_at
+ * @property Carbon|null $returned_at
  * @property int $fine_amount
- * @property-read \App\Models\User $user
- * @property-read \App\Models\Book $book
+ * @property boolean $fine_paid
+ * @property-read User $user
+ * @property-read Book $book
  *
- * @method static \Illuminate\Database\Eloquent\Builder active()
- * @method static \Illuminate\Database\Eloquent\Builder withUnpaidFines()
+ * @method static Builder active()
+ * @method static Builder withUnpaidFines()
  */
 class Loan extends Model
 {
@@ -36,6 +39,7 @@ class Loan extends Model
         'due_at',
         'returned_at',
         'fine_amount',
+        'fine_paid',
     ];
 
     protected function casts(): array
@@ -45,6 +49,7 @@ class Loan extends Model
             'due_at' => 'datetime',
             'returned_at' => 'datetime',
             'fine_amount' => 'integer',
+            'fine_paid' => 'boolean',
         ];
     }
 
@@ -76,6 +81,7 @@ class Loan extends Model
     public function scopeWithUnpaidFines($query)
     {
         return $query->where('status', self::STATUS_RETURNED)
-            ->where('fine_amount', '>', 0);
+            ->where('fine_amount', '>', 0)
+            ->where('fine_paid', false);
     }
 }

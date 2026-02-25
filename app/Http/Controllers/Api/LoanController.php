@@ -60,4 +60,21 @@ class LoanController extends Controller
 
         return response()->json(['data' => new LoanResource($returnedLoan)]);
     }
+
+    public function payFine(Request $request, int $id): JsonResponse
+    {
+        if (!$request->user()->isLibrarian()) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $loan = Loan::findOrFail($id);
+
+        try {
+            $paidLoan = $this->loanService->payFine($loan);
+        } catch (InvalidLoanStateException $e) {
+            return response()->json(['message' => $e->getMessage()], 409);
+        }
+
+        return response()->json(['data' => new LoanResource($paidLoan)]);
+    }
 }

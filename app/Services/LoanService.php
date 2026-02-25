@@ -101,4 +101,15 @@ class LoanService
             ->active()
             ->exists();
     }
+
+    public function payFine(Loan $loan): Loan
+    {
+        if ($loan->fine_amount <= 0) {
+            throw new InvalidLoanStateException('This loan has no fine to pay.');
+        }
+
+        $loan->update(['fine_paid' => true]);
+
+        return $loan;
+    }
 }
