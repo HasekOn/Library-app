@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\BookReservedException;
+use App\Exceptions\UnpaidFineException;
 use App\Models\Book;
-use App\Models\Loan;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Services\LoanService;
-use App\Exceptions\UnpaidFineException;
-use App\Exceptions\BookReservedException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

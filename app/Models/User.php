@@ -4,16 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $name
  * @property string $email
  * @property string $role
  *
- * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
@@ -21,6 +20,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     public const string ROLE_READER = 'reader';
+
     public const string ROLE_LIBRARIAN = 'librarian';
 
     public const array ROLES = [

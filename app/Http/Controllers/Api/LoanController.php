@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\LoanResource;
-use App\Models\Book;
-use App\Models\Loan;
-use App\Services\LoanService;
 use App\Exceptions\BookNotAvailableException;
 use App\Exceptions\BookReservedException;
 use App\Exceptions\InvalidLoanStateException;
 use App\Exceptions\MaxLoansExceededException;
 use App\Exceptions\UnpaidFineException;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\LoanResource;
+use App\Models\Book;
+use App\Models\Loan;
+use App\Services\LoanService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LoanController extends Controller
 {
-    public function __construct(private LoanService $loanService)
-    {
-    }
+    public function __construct(private LoanService $loanService) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -63,7 +61,7 @@ class LoanController extends Controller
 
     public function payFine(Request $request, int $id): JsonResponse
     {
-        if (!$request->user()->isLibrarian()) {
+        if (! $request->user()->isLibrarian()) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 

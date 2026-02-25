@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon $due_at
  * @property Carbon|null $returned_at
  * @property int $fine_amount
- * @property boolean $fine_paid
+ * @property bool $fine_paid
  * @property-read User $user
  * @property-read Book $book
  *
@@ -29,6 +29,7 @@ class Loan extends Model
     use HasFactory;
 
     public const string STATUS_BORROWED = 'borrowed';
+
     public const string STATUS_RETURNED = 'returned';
 
     protected $fillable = [

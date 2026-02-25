@@ -16,26 +16,27 @@ use App\Notifications\LateReturnNotification;
 class LoanService
 {
     private const int MAX_ACTIVE_LOANS = 3;
+
     private const int FINE_PER_DAY = 10;
 
     public function borrowBook(User $user, Book $book): Loan
     {
-        if (!$book->isAvailable()) {
-            throw new BookNotAvailableException();
+        if (! $book->isAvailable()) {
+            throw new BookNotAvailableException;
         }
 
         if ($this->hasUnpaidFines($user)) {
-            throw new UnpaidFineException();
+            throw new UnpaidFineException;
         }
 
         $activeLoans = $user->loans()->active()->count();
 
         if ($activeLoans >= self::MAX_ACTIVE_LOANS) {
-            throw new MaxLoansExceededException();
+            throw new MaxLoansExceededException;
         }
 
         if ($this->isReservedByAnotherUser($book, $user)) {
-            throw new BookReservedException();
+            throw new BookReservedException;
         }
 
         $book->decrement('available_copies');
@@ -51,7 +52,7 @@ class LoanService
 
     public function returnBook(Loan $loan): Loan
     {
-        if (!$loan->isBorrowed()) {
+        if (! $loan->isBorrowed()) {
             throw new InvalidLoanStateException('Cannot return a loan that is not in borrowed state.');
         }
 

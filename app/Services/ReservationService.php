@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Services;
 
 use App\Exceptions\BookAvailableForLoanException;
@@ -14,7 +13,7 @@ class ReservationService
     public function reserveBook(User $user, Book $book): Reservation
     {
         if ($book->isAvailable()) {
-            throw new BookAvailableForLoanException();
+            throw new BookAvailableForLoanException;
         }
 
         return Reservation::create([
@@ -27,7 +26,7 @@ class ReservationService
 
     public function cancelReservation(Reservation $reservation): Reservation
     {
-        if (!$reservation->isActive()) {
+        if (! $reservation->isActive()) {
             throw new InvalidReservationStateException('Cannot cancel a reservation that is not active.');
         }
 

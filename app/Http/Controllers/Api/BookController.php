@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\BookResource;
+
 class BookController extends Controller
 {
     public function index(): JsonResponse
@@ -21,7 +22,7 @@ class BookController extends Controller
     {
         $book = Book::find($id);
 
-        if (!$book) {
+        if (! $book) {
             return response()->json(['message' => 'Book not found.'], 404);
         }
 
@@ -54,11 +55,11 @@ class BookController extends Controller
     {
         $book = Book::find($id);
 
-        if (!$book) {
+        if (! $book) {
             return response()->json(['message' => 'Book not found.'], 404);
         }
 
-        if (!request()->user() || !request()->user()->isLibrarian()) {
+        if (! request()->user() || ! request()->user()->isLibrarian()) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 

@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\BookAvailableForLoanException;
+use App\Exceptions\InvalidReservationStateException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ReservationResource;
 use App\Models\Book;
 use App\Models\Reservation;
 use App\Services\ReservationService;
-use App\Exceptions\BookAvailableForLoanException;
-use App\Exceptions\InvalidReservationStateException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
 {
-    public function __construct(private ReservationService $reservationService)
-    {
-    }
+    public function __construct(private ReservationService $reservationService) {}
 
     public function index(Request $request): JsonResponse
     {

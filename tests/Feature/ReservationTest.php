@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\Book;
-use App\Models\Reservation;
-use App\Models\User;
-use App\Services\ReservationService;
 use App\Exceptions\BookAvailableForLoanException;
 use App\Exceptions\InvalidReservationStateException;
+use App\Models\Book;
+use App\Models\User;
+use App\Services\ReservationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

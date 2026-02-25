@@ -21,8 +21,11 @@ class Reservation extends Model
     use HasFactory;
 
     public const string STATUS_ACTIVE = 'active';
+
     public const string STATUS_FULFILLED = 'fulfilled';
+
     public const string STATUS_EXPIRED = 'expired';
+
     public const string STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
