@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: library-production
+
+resources:
+  - ../../base
+
+namePrefix: prod-
+
+patches:
+  - target:
+      kind: ConfigMap
+      name: library-config
+    patch: |
+      - op: replace
+        path: /data/APP_ENV
+        value: "production"
+      - op: replace
+        path: /data/APP_DEBUG
+        value: "false"
+
+  - target:
+      kind: Deployment
+      name: library-app
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+
+  - target:
+      kind: Namespace
+      name: library-app
+    patch: |
+      - op: replace
+        path: /metadata/name
+        value: "library-production"
+
+  - target:
+      kind: Ingress
+      name: library-app
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: "library.local"
+
+  - target:
+      kind: ConfigMap
+      name: library-config
+    patch: |
+      - op: replace
+        path: /data/APP_ENV
+        value: "production"
+      - op: replace
+        path: /data/APP_DEBUG
+        value: "false"
+      - op: replace
+        path: /data/DB_HOST
+        value: "prod-mysql"
